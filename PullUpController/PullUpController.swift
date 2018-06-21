@@ -239,7 +239,7 @@ private extension PullUpController {
         }, completion: nil)
     }
     
-    func setPortraitConstraints(parentViewSize: CGSize, hidden: Bool = false) {
+    func setPortraitConstraints(parentViewSize: CGSize, hidden: Bool) {
         topConstraint?.constant = hidden ? parentViewSize.height : parentViewSize.height - pullUpControllerPreviewOffset
         leftConstraint?.constant = (parentViewSize.width - min(pullUpControllerPreferredSize.width, parentViewSize.width))/2
         widthConstraint?.constant = pullUpControllerPreferredSize.width
@@ -312,7 +312,7 @@ fileprivate extension PullUpController {
         if size.width > size.height {
             setLandscapeConstraints()
         } else {
-            setPortraitConstraints(parentViewSize: size)
+            setPortraitConstraints(parentViewSize: size, hidden: hidden)
         }
         
         pullUpControllerOffsetIsChanging()
