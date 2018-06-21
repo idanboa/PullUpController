@@ -8,6 +8,21 @@
 
 import UIKit
 
+public protocol PullUpControllerDelegate {
+    
+    /**
+     Call when any offset changes
+     */
+    func pullUpControllerDidScroll(_ pullUpController: PullUpController)
+}
+
+public extension PullUpControllerDelegate {
+    
+    func pullUpControllerDidScroll(_ pullUpController: PullUpController) {
+        //optional
+    }
+}
+
 open class PullUpController: UIViewController {
     
     private var leftConstraint: NSLayoutConstraint?
@@ -15,6 +30,8 @@ open class PullUpController: UIViewController {
     private var widthConstraint: NSLayoutConstraint?
     private var heightConstraint: NSLayoutConstraint?
     private var panGestureRecognizer: UIPanGestureRecognizer?
+    
+    public var pullUpControllerDelegate: PullUpControllerDelegate? = nil
     
     /**
      The closure to execute before the view controller's view move to a sticky point.
@@ -90,6 +107,13 @@ open class PullUpController: UIViewController {
     private var portraitPreviousStickyPointIndex: Int?
     
     /**
+     Current top offset
+     */
+    public var currentTopOffset: CGFloat? {
+        return (parent?.view.frame.height ?? 0) - (topConstraint?.constant ?? 0)
+    }
+    
+    /**
      This method will move the pull up controller's view in order to show the provided visible point.
      
      You may use on of `pullUpControllerAllStickyPoints` item to provide a valid visible point.
@@ -99,6 +123,8 @@ open class PullUpController: UIViewController {
     open func pullUpControllerMoveToVisiblePoint(_ visiblePoint: CGFloat, completion: (() -> Void)?) {
         guard isPortrait else { return }
         topConstraint?.constant = (parent?.view.frame.height ?? 0) - visiblePoint
+        
+        pullUpControllerOffsetIsChanging()
         
         UIView.animate(
             withDuration: 0.3,
@@ -150,7 +176,10 @@ open class PullUpController: UIViewController {
         widthConstraint = view.widthAnchor.constraint(equalToConstant: pullUpControllerPreferredSize.width)
         heightConstraint = view.heightAnchor.constraint(equalToConstant: pullUpControllerPreferredSize.height)
         
-        NSLayoutConstraint.activate([topConstraint, leftConstraint, widthConstraint, heightConstraint].flatMap { $0 })
+        NSLayoutConstraint.activate([topConstraint,
+                                     leftConstraint,
+                                     widthConstraint,
+                                     heightConstraint].compactMap { $0 })
     }
     
     private var currentStickyPointIndex: Int {
@@ -195,6 +224,8 @@ open class PullUpController: UIViewController {
             topConstraint.constant = nearestStickyPointY(yVelocity: gestureRecognizer.velocity(in: view).y)
             animateLayout()
         }
+        
+        pullUpControllerOffsetIsChanging()
     }
     
     @objc fileprivate func handleInternalScrollViewPanGestureRecognizer(_ gestureRecognizer: UIPanGestureRecognizer) {
@@ -218,6 +249,8 @@ open class PullUpController: UIViewController {
             topConstraint?.constant = nearestStickyPointY(yVelocity: 0)
             animateLayout()
         }
+        
+        pullUpControllerOffsetIsChanging()
     }
     
     private func animateLayout() {
@@ -252,6 +285,12 @@ open class PullUpController: UIViewController {
         } else {
             setPortraitConstraints(parentViewSize: size)
         }
+        
+        pullUpControllerOffsetIsChanging()
+    }
+    
+    open func pullUpControllerOffsetIsChanging() {
+        pullUpControllerDelegate?.pullUpControllerDidScroll(self)
     }
 }
 
