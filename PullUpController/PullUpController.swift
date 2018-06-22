@@ -24,22 +24,32 @@ open class PullUpController: UIViewController {
     /**
      executes whenever an animation block has completed.
      */
-    public var didFinishAnimating: (() -> Void)?
+    public var didFinishAnimatingToPoint: ((CGFloat?) -> Void)?
     
     private let defaultAnimationDuration: TimeInterval = 0.3
-    open var animationDuration: TimeInterval?
+    open var animationDuration: TimeInterval? {
+        return nil
+    }
     
     private let defaultAnimationDelay: TimeInterval = 0.0
-    open var animationDelay: TimeInterval?
+    open var animationDelay: TimeInterval? {
+        return nil
+    }
     
     private let defaultSpringDamping: CGFloat = 0.8
-    open var springDamping: CGFloat?
+    open var springDamping: CGFloat? {
+        return nil
+    }
     
     private let defaultSpringVelocity: CGFloat = 0.0
-    open var springVelocity: CGFloat?
+    open var springVelocity: CGFloat? {
+        return nil
+    }
     
     private let defaultAnimationOptions: UIViewAnimationOptions = []
-    open var animationOptions: UIViewAnimationOptions?
+    open var animationOptions: UIViewAnimationOptions? {
+        return nil
+    }
     
     /**
      The closure to execute before the view controller's view move to a sticky point.
@@ -185,7 +195,7 @@ private extension PullUpController {
                        animations: animations,
                        completion: { [weak self] finished in
                         if finished {
-                            self?.didFinishAnimating?()
+                            self?.didFinishAnimatingToPoint?(self?.currentTopOffset)
                         }
                         completion?()
         })
@@ -235,7 +245,6 @@ private extension PullUpController {
             self?.parent?.view.layoutIfNeeded()
             
             let point = (self?.parent?.view.frame.height ?? 0.0) - (self?.topConstraint?.constant ?? 0.0)
-            self?.didMoveToStickyPoint?(point)
         }, completion: nil)
     }
     
