@@ -168,8 +168,8 @@ open class PullUpController: UIViewController {
         })
     }
     
-    open func reveal(customHeight: CGFloat? = nil) {
-        pullUpControllerMoveToVisiblePoint(self.pullUpControllerPreviewOffset, completion: nil)
+    open func reveal(customHeight: CGFloat? = nil, completion: (() -> Void)? = nil) {
+        pullUpControllerMoveToVisiblePoint(self.pullUpControllerPreviewOffset, completion: completion)
     }
 }
 
