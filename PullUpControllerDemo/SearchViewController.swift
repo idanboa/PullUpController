@@ -12,7 +12,6 @@ import MapKit
 class SearchViewController: PullUpController {
     
     // MARK: - IBOutlets
-    
     @IBOutlet private weak var visualEffectView: UIVisualEffectView!
     @IBOutlet private weak var searchBoxContainerView: UIView!
     @IBOutlet private weak var searchSeparatorView: UIView! {
@@ -41,12 +40,15 @@ class SearchViewController: PullUpController {
         self.didMoveToStickyPoint = { point in
             print("didMoveToStickyPoint \(point)")
         }
+        
+        view.backgroundColor = UIColor.white
     }
 
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         
-        view.layer.cornerRadius = 12
+        view.roundCorners([.topLeft, .topRight], radius: 12)
+//        view.layer.cornerRadius = 12
     }
     
     private func setupDataSource() {
@@ -125,4 +127,15 @@ extension SearchViewController: UITableViewDataSource, UITableViewDelegate {
         
         (parent as? MapViewController)?.zoom(to: locations[indexPath.row].location)
     }
+}
+
+extension UIView {
+    
+    func roundCorners(_ corners: UIRectCorner, radius: CGFloat) {
+        let path = UIBezierPath(roundedRect: self.bounds, byRoundingCorners: corners, cornerRadii: CGSize(width: radius, height: radius))
+        let mask = CAShapeLayer()
+        mask.path = path.cgPath
+        self.layer.mask = mask
+    }
+    
 }

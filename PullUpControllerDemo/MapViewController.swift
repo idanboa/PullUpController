@@ -12,6 +12,7 @@ import MapKit
 class MapViewController: UIViewController {
 
     @IBOutlet private weak var mapView: MKMapView!
+    weak var searchViewController: SearchViewController?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -21,11 +22,12 @@ class MapViewController: UIViewController {
     
     private func addPullUpController() {
         guard
-            let pullUpController = UIStoryboard(name: "Main", bundle: nil)
+            let searchViewController = UIStoryboard(name: "Main", bundle: nil)
                 .instantiateViewController(withIdentifier: "SearchViewController") as? SearchViewController
             else { return }
         
-        addPullUpController(pullUpController)
+        addPullUpController(searchViewController)
+        self.searchViewController = searchViewController
     }
     
     func zoom(to location: CLLocationCoordinate2D) {
@@ -33,6 +35,25 @@ class MapViewController: UIViewController {
         let region = MKCoordinateRegionMake(location, span)
         
         mapView.setRegion(region, animated: true)
+    }
+    
+    
+    @IBAction func hideButton(_ sender: UIButton) {
+        searchViewController?.hide()
+    }
+    
+    @IBAction func revealButton(_ sender: UIButton) {
+        searchViewController?.reveal()
+    }
+    
+    @IBAction func reloadButton(_ sender: UIButton) {
+        searchViewController?.hide { [weak searchViewController] finished in
+            finished ? searchViewController?.reveal() : ()
+        }
+    }
+    
+    @IBAction func bounceButton(_ sender: UIButton) {
+        searchViewController?.bounce()
     }
 }
 

@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="13529" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14113" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
     <device id="retina4_7" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13527"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14088"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -32,17 +32,53 @@
                                 </constraints>
                                 <blurEffect style="light"/>
                             </visualEffectView>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ITy-zD-fwq">
+                                <rect key="frame" x="60" y="64" width="35" height="30"/>
+                                <state key="normal" title="HIDE"/>
+                                <connections>
+                                    <action selector="hideButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="3a0-PW-1hn"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="nwg-FT-dBU">
+                                <rect key="frame" x="110" y="64" width="55" height="30"/>
+                                <state key="normal" title="REVEAL"/>
+                                <connections>
+                                    <action selector="revealButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="BkH-s7-dJJ"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="mKg-r6-1Xl">
+                                <rect key="frame" x="180" y="64" width="58" height="30"/>
+                                <state key="normal" title="RELOAD"/>
+                                <connections>
+                                    <action selector="reloadButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="NmQ-zj-NWn"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="3tK-Ct-Gln">
+                                <rect key="frame" x="253" y="64" width="62" height="30"/>
+                                <state key="normal" title="BOUNCE"/>
+                                <connections>
+                                    <action selector="bounceButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="uWK-7B-QIj"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
                             <constraint firstItem="drN-fA-22T" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" id="7AR-Wc-usn"/>
                             <constraint firstAttribute="bottom" secondItem="drN-fA-22T" secondAttribute="bottom" id="BNk-Pq-9mt"/>
+                            <constraint firstItem="mKg-r6-1Xl" firstAttribute="centerY" secondItem="nwg-FT-dBU" secondAttribute="centerY" id="Cqf-cS-mns"/>
+                            <constraint firstItem="nwg-FT-dBU" firstAttribute="leading" secondItem="ITy-zD-fwq" secondAttribute="trailing" constant="15" id="JMB-bi-NzH"/>
                             <constraint firstItem="drN-fA-22T" firstAttribute="trailing" secondItem="6Tk-OE-BBY" secondAttribute="trailing" id="TGw-SP-OU6"/>
+                            <constraint firstItem="3tK-Ct-Gln" firstAttribute="centerY" secondItem="mKg-r6-1Xl" secondAttribute="centerY" id="VZv-J2-whx"/>
                             <constraint firstItem="drN-fA-22T" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="ZoL-CH-lGY"/>
+                            <constraint firstItem="3tK-Ct-Gln" firstAttribute="leading" secondItem="mKg-r6-1Xl" secondAttribute="trailing" constant="15" id="d9N-R2-bza"/>
                             <constraint firstItem="agq-BC-bau" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="ewe-vs-e5Q"/>
                             <constraint firstItem="agq-BC-bau" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" id="nRk-u4-pYb"/>
+                            <constraint firstItem="ITy-zD-fwq" firstAttribute="top" secondItem="agq-BC-bau" secondAttribute="bottom" constant="44" id="oCg-eJ-wtE"/>
                             <constraint firstAttribute="trailing" secondItem="agq-BC-bau" secondAttribute="trailing" id="qOz-Yp-9fE"/>
+                            <constraint firstItem="ITy-zD-fwq" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="60" id="r3d-Ad-3Cb"/>
                             <constraint firstItem="drN-fA-22T" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="sG1-rh-zyz"/>
+                            <constraint firstItem="mKg-r6-1Xl" firstAttribute="leading" secondItem="nwg-FT-dBU" secondAttribute="trailing" constant="15" id="vg0-gW-QOb"/>
+                            <constraint firstItem="nwg-FT-dBU" firstAttribute="centerY" secondItem="ITy-zD-fwq" secondAttribute="centerY" id="yj7-mw-AbL"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>

@@ -16,6 +16,21 @@ open class PullUpController: UIViewController {
     private var heightConstraint: NSLayoutConstraint?
     private var panGestureRecognizer: UIPanGestureRecognizer?
     
+    private var overlayView: UIView?
+    /**
+     Indicates whether an overlay view should be added to the parent when the drawer is fully open.
+     */
+    open var shouldAddOverlayWhenOpen: Bool {
+        return true
+    }
+    
+    /**
+     the height of the view containing the PullUpController
+    */
+    private var parentHeight: CGFloat {
+        return parent?.view.frame.height ?? 0
+    }
+    
     /**
      executes whenever the drawer changed vertical position.
      */
@@ -27,26 +42,31 @@ open class PullUpController: UIViewController {
     public var didFinishAnimatingToPoint: ((CGFloat?) -> Void)?
     
     private let defaultAnimationDuration: TimeInterval = 0.3
+    /// if nil animations will use 'defaultAnimationDuration' 0.3
     open var animationDuration: TimeInterval? {
         return nil
     }
     
     private let defaultAnimationDelay: TimeInterval = 0.0
+    /// if nil animations will use 'defaultAnimationDelay' 0.0
     open var animationDelay: TimeInterval? {
         return nil
     }
     
     private let defaultSpringDamping: CGFloat = 0.8
+    /// if nil animations will use 'defaultSpringDamping' 0.8
     open var springDamping: CGFloat? {
         return nil
     }
     
     private let defaultSpringVelocity: CGFloat = 0.0
+    /// if nil animations will use 'defaultSpringVelocity' 0.0
     open var springVelocity: CGFloat? {
         return nil
     }
     
     private let defaultAnimationOptions: UIViewAnimationOptions = []
+    /// if nil animations will use 'defaultAnimationOptions' []
     open var animationOptions: UIViewAnimationOptions? {
         return nil
     }
@@ -111,6 +131,13 @@ open class PullUpController: UIViewController {
     }
     
     /**
+     A Boolean value that determines whether the user can pan the controller above the preview offset (defaults to true).
+     */
+    open var pullingAbovePreviewOffsetEnabled: Bool {
+        return true
+    }
+    
+    /**
      The desired size of the pull up controller’s view, in screen units when the device is in landscape mode.
      The default value is (x: 10, y: 10, width: 300, height: UIScreen.main.bounds.height - 20).
      */
@@ -125,7 +152,7 @@ open class PullUpController: UIViewController {
     private var portraitPreviousStickyPointIndex: Int?
     
     private var currentStickyPointIndex: Int {
-        let stickyPointTreshold = (self.parent?.view.frame.height ?? 0) - (topConstraint?.constant ?? 0)
+        let stickyPointTreshold = (parentHeight) - (topConstraint?.constant ?? 0)
         let stickyPointsLessCurrentPosition = pullUpControllerAllStickyPoints.map { abs($0 - stickyPointTreshold) }
         guard let minStickyPointDifference = stickyPointsLessCurrentPosition.min() else { return 0 }
         return stickyPointsLessCurrentPosition.index(of: minStickyPointDifference) ?? 0
@@ -135,7 +162,16 @@ open class PullUpController: UIViewController {
      Current top offset
      */
     private var currentTopOffset: CGFloat? {
-        return (parent?.view.frame.height ?? 0) - (topConstraint?.constant ?? 0)
+        return parentHeight - (topConstraint?.constant ?? 0)
+    }
+    
+    private var fullyOpen: Bool {
+        guard currentTopOffset != 0 else { return false }
+        return pullUpControllerAllStickyPoints[currentStickyPointIndex] == pullUpControllerAllStickyPoints.last ?? 0
+    }
+    
+    private var fullyHidden: Bool {
+        return currentTopOffset == 0
     }
     
     /**
@@ -145,9 +181,9 @@ open class PullUpController: UIViewController {
      - parameter visiblePoint: the y value to make visible, in screen units expressed in the pull up controller coordinate system.
      - parameter completion: The closure to execute after the animation is completed. This block has no return value and takes no parameters. You may specify nil for this parameter.
      */
-    open func pullUpControllerMoveToVisiblePoint(_ visiblePoint: CGFloat, completion: (() -> Void)?) {
+    open func pullUpControllerMoveToVisiblePoint(_ visiblePoint: CGFloat, completion: ((Bool) -> Void)?) {
         guard isPortrait else { return }
-        topConstraint?.constant = (parent?.view.frame.height ?? 0) - visiblePoint
+        topConstraint?.constant = parentHeight - visiblePoint
         
         pullUpControllerOffsetIsChanging()
         
@@ -178,7 +214,29 @@ open class PullUpController: UIViewController {
         })
     }
     
-    open func reveal(customHeight: CGFloat? = nil, completion: (() -> Void)? = nil) {
+    open func bounce() {
+        guard !fullyOpen && !fullyHidden else {
+            // does not bounce if hidden or fully open.
+            return
+        }
+        
+        let midY = view.center.y
+        let movement = CGFloat(5)
+        let animation = CAKeyframeAnimation()
+        animation.keyPath = "position.y"
+        animation.values = [midY - movement, midY + movement, midY]
+        animation.keyTimes = [0, 0.5, 1]
+        animation.duration = 0.3
+        animation.repeatCount = 2
+        
+        view.layer.add(animation, forKey: "bounce")
+    }
+    
+    open func hide(_ completion: ((Bool) -> Void)? = nil) {
+        pullUpControllerMoveToVisiblePoint(0, completion: completion)
+    }
+    
+    open func reveal(customHeight: CGFloat? = nil, completion: ((Bool) -> Void)? = nil) {
         pullUpControllerMoveToVisiblePoint(self.pullUpControllerPreviewOffset, completion: completion)
     }
 }
@@ -186,7 +244,7 @@ open class PullUpController: UIViewController {
 // MARK: - private
 private extension PullUpController {
     
-    func animate(animations: @escaping () -> Void, completion: (() -> Void)?) {
+    func animate(animations: @escaping () -> Void, completion: ((Bool) -> Void)?) {
         UIView.animate(withDuration: animationDuration ?? defaultAnimationDuration,
                        delay: animationDelay ?? defaultAnimationDelay,
                        usingSpringWithDamping: springDamping ?? defaultSpringDamping,
@@ -197,7 +255,8 @@ private extension PullUpController {
                         if finished {
                             self?.didFinishAnimatingToPoint?(self?.currentTopOffset)
                         }
-                        completion?()
+                        
+                        completion?(finished)
         })
     }
     
@@ -212,11 +271,12 @@ private extension PullUpController {
         }
         
         willMoveToStickyPoint?(pullUpControllerAllStickyPoints[currentStickyPointIndex])
-        return (parent?.view.frame.height ?? 0) - pullUpControllerAllStickyPoints[currentStickyPointIndex]
+        return parentHeight - pullUpControllerAllStickyPoints[currentStickyPointIndex]
     }
     
     @objc func handlePanGestureRecognizer(_ gestureRecognizer: UIPanGestureRecognizer) {
         guard
+            pullingAbovePreviewOffsetEnabled,
             isPortrait,
             let topConstraint = topConstraint,
             let parentViewHeight = parent?.view.frame.height
@@ -242,9 +302,11 @@ private extension PullUpController {
     
     func animateLayout() {
         self.animate(animations: { [weak self] in
-            self?.parent?.view.layoutIfNeeded()
+            guard let weakSelf = self else { return }
+            weakSelf.fullyOpen ? weakSelf.addOverlayIfNeeded() : weakSelf.removeOverlayIfNeeded()
             
-            let point = (self?.parent?.view.frame.height ?? 0.0) - (self?.topConstraint?.constant ?? 0.0)
+            weakSelf.parent?.view.layoutIfNeeded()
+//            let point = (self?.parent?.view.frame.height ?? 0.0) - (self?.topConstraint?.constant ?? 0.0)
         }, completion: nil)
     }
     
@@ -325,6 +387,40 @@ fileprivate extension PullUpController {
         }
         
         pullUpControllerOffsetIsChanging()
+    }
+    
+    func addOverlayIfNeeded() {
+        guard
+            shouldAddOverlayWhenOpen,
+            overlayView == nil,
+            let parent = parent else { return }
+        
+        let overlay = UIView.init(frame: parent.view.frame)
+        overlay.backgroundColor = UIColor.black
+        parent.view.insertSubview(overlay, belowSubview: self.view)
+        overlay.alpha = 0
+        
+        self.overlayView = overlay
+        UIView.animate(withDuration: defaultAnimationDuration,
+                       delay: 0.0,
+                       options: .curveEaseIn,
+                       animations: { overlay.alpha = 0.67 },
+                       completion: nil)
+    }
+    
+    func removeOverlayIfNeeded() {
+        guard overlayView != nil else { return }
+        
+        UIView.animate(withDuration: defaultAnimationDuration,
+                       delay: 0.0,
+                       options: .curveEaseOut,
+                       animations: { [weak self] in self?.overlayView?.alpha = 0 },
+                       completion: { [weak self] finished in
+                        if finished {
+                            self?.overlayView?.removeFromSuperview()
+                            self?.overlayView = nil
+                        }
+        })
     }
 }
 
