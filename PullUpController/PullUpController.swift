@@ -232,7 +232,12 @@ open class PullUpController: UIViewController {
         view.layer.add(animation, forKey: "bounce")
     }
     
-    open func hide(_ completion: ((Bool) -> Void)? = nil) {
+    open func hideIfNeeded(_ completion: ((Bool) -> Void)? = nil) {
+        guard topConstraint?.constant != parentHeight else {
+            completion?(true)
+            return
+        }
+        
         pullUpControllerMoveToVisiblePoint(0, completion: completion)
     }
     

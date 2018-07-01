@@ -39,7 +39,7 @@ class MapViewController: UIViewController {
     
     
     @IBAction func hideButton(_ sender: UIButton) {
-        searchViewController?.hide()
+        searchViewController?.hideIfNeeded()
     }
     
     @IBAction func revealButton(_ sender: UIButton) {
@@ -47,7 +47,7 @@ class MapViewController: UIViewController {
     }
     
     @IBAction func reloadButton(_ sender: UIButton) {
-        searchViewController?.hide { [weak searchViewController] finished in
+        searchViewController?.hideIfNeeded { [weak searchViewController] finished in
             finished ? searchViewController?.reveal() : ()
         }
     }
